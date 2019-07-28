@@ -69,6 +69,7 @@ func newMeasurement(rate uint64, duration time.Duration) *measurement {
 
 func (m *measurement) run() error {
 	count := uint64(time.Duration(m.rate) * (m.duration / time.Second))
+	t := time.NewTicker(time.Second / time.Duration(m.rate))
 	for i := uint64(0); i < count; i++ {
 		counters, err := m.getInterfaceCounters()
 		if err != nil {
@@ -82,7 +83,7 @@ func (m *measurement) run() error {
 			m.results[counters[i].name] = append(m.results[counters[i].name], counters[i])
 		}
 
-		time.Sleep(time.Second / time.Duration(m.rate))
+		<-t.C
 	}
 
 	return nil
